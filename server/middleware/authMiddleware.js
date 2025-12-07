@@ -24,4 +24,5 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+module.exports = authMiddleware; 
+// ^^^ MAKE SURE THIS IS THE LAST LINE. DELETE ANYTHING AFTER THIS.
