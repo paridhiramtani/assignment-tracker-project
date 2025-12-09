@@ -1,10 +1,12 @@
-// server/server.js
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const http = require('http'); // New
+const { Server } = require('socket.io'); // New
+const Message = require('./models/Message'); // New
 
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
@@ -12,6 +14,16 @@ const assignmentRoutes = require('./routes/assignments');
 const uploadRoutes = require('./routes/upload');
 
 const app = express();
+const server = http.createServer(app); // Wrap express
+
+// Socket.io Setup
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
 // Middleware
 app.use(helmet());
@@ -21,8 +33,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
@@ -31,21 +41,56 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/upload', uploadRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
+// Endpoint to get chat history
+app.get('/api/courses/:id/messages', async (req, res) => {
+  try {
+    const messages = await Message.find({ course: req.params.id })
+      .populate('sender', 'name')
+      .sort('createdAt'); // Oldest first
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching messages' });
+  }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
+// Socket Logic
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('join_room', (courseId) => {
+    socket.join(courseId);
+    console.log(`User joined room: ${courseId}`);
+  });
+
+  socket.on('send_message', async (data) => {
+    // data = { courseId, senderId, content, senderName }
+    
+    // Save to DB
+    try {
+      const newMessage = new Message({
+        course: data.courseId,
+        sender: data.senderId,
+        content: data.content
+      });
+      await newMessage.save();
+
+      // Broadcast to room
+      io.to(data.courseId).emit('receive_message', {
+        _id: newMessage._id,
+        content: data.content,
+        sender: { _id: data.senderId, name: data.senderName },
+        createdAt: newMessage.createdAt
+      });
+    } catch (err) {
+      console.error('Error saving message:', err);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
   });
 });
 
-// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -53,8 +98,8 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// Note: We listen on 'server', not 'app'
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
