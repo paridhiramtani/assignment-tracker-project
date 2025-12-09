@@ -1,5 +1,6 @@
 const Course = require('../models/Course');
 const Assignment = require('../models/Assignment');
+const Resource = require('../models/Resource');
 
 exports.getCourses = async (req, res) => {
   try {
@@ -106,5 +107,39 @@ exports.leaveCourse = async (req, res) => {
     res.json({ message: 'Left course' });
   } catch (error) {
     res.status(500).json({ message: 'Error leaving' });
+  }
+};
+
+exports.addResource = async (req, res) => {
+  try {
+    const { title, fileUrl, type } = req.body;
+    const course = await Course.findById(req.params.id);
+    
+    // Check permissions
+    if (course.owner.toString() !== req.userId && req.user.role !== 'instructor') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const resource = new Resource({
+      course: req.params.id,
+      title,
+      fileUrl,
+      type,
+      uploadedBy: req.userId
+    });
+
+    await resource.save();
+    res.status(201).json(resource);
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding resource' });
+  }
+};
+
+exports.getResources = async (req, res) => {
+  try {
+    const resources = await Resource.find({ course: req.params.id }).sort('-createdAt');
+    res.json(resources);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching resources' });
   }
 };
