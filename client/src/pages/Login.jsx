@@ -1,8 +1,7 @@
-// client/src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +15,6 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       await login(email, password);
       navigate('/dashboard');
@@ -28,203 +26,79 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <BookOpen className="w-16 h-16 text-blue-600" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 via-white to-orange-50 px-4">
+      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-stone-100">
+        
+        {/* Decorative Side */}
+        <div className="md:w-1/2 bg-brand-900 p-12 text-white flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+          <div className="relative z-10">
+            <BookOpen className="w-16 h-16 mb-6 text-accent-500" />
+            <h1 className="text-4xl font-serif font-bold mb-4 text-white">CourseTracker</h1>
+            <p className="text-brand-100 text-lg leading-relaxed">
+              "Education is the movement from darkness to light."
+            </p>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="you@example.com"
-            />
+        {/* Form Side */}
+        <div className="md:w-1/2 p-8 md:p-12 bg-white">
+          <div className="mb-8">
+            <h2 className="text-3xl font-serif font-bold text-brand-900">Welcome Back</h2>
+            <p className="text-stone-500 mt-2">Please enter your details to sign in.</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="••••••••"
-            />
-          </div>
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2 uppercase tracking-wide">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all"
+                placeholder="student@university.edu"
+              />
+            </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium">
-            Sign up
-          </Link>
-        </p>
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2 uppercase tracking-wide">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-brand-700 text-white py-3 px-4 rounded-lg hover:bg-brand-800 disabled:opacity-50 transition-all font-medium flex items-center justify-center group"
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+              {!loading && <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-stone-600">
+            New to CourseTracker?{' '}
+            <Link to="/register" className="text-brand-700 hover:text-brand-900 font-semibold underline decoration-2 underline-offset-4">
+              Create an account
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Login;
-
-// client/src/pages/Register.jsx
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { BookOpen } from 'lucide-react';
-
-const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      await register(name, email, password, role);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <BookOpen className="w-16 h-16 text-blue-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
-          <p className="text-gray-600 mt-2">Join CourseTracker today</p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="John Doe"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="••••••••"
-            />
-            <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Role
-            </label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="student">Student</option>
-              <option value="instructor">Instructor</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-          >
-            {loading ? 'Creating account...' : 'Sign Up'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-            Sign in
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export default Register;
